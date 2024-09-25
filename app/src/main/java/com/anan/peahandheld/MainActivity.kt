@@ -28,6 +28,7 @@ import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,8 +56,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun RFIDLayout(){
     val image = painterResource(R.drawable.bg_compose_background)
-    var barcodeInput by remember { mutableStateOf("0") }
-    var barcode = barcodeInput.toIntOrNull() ?: 0
+    var barcodeInput by remember { mutableStateOf("1060050001|1,6200015451|6200015451|||4") }
+    var barcode = barcodeInput.toString()
+    var rfidInput by remember { mutableStateOf("0") }
+    val rfid = convertBarcodeToRFID(barcode)
     Column (
         modifier = Modifier
             .statusBarsPadding()
@@ -86,15 +89,19 @@ fun RFIDLayout(){
         EditBarcode(
             value = barcodeInput,
             onValueChange = { barcodeInput = it },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        //Spacer(modifier = Modifier.height(16.dp))
         EditRFID(
-            value = barcodeInput,
-            onValueChange = { barcodeInput = it },
-            modifier = Modifier.fillMaxWidth()
+            value = rfid,
+            onValueChange = { rfidInput = it },
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(40.dp))
+       // Spacer(modifier = Modifier.height(40.dp))
         Row {
 
             Button(onClick = { /*TODO*/ }) {
@@ -135,8 +142,19 @@ fun EditRFID(
     )
 
 }
-private  fun checkBarcode(){
+@OptIn(ExperimentalStdlibApi::class)
+private  fun convertBarcodeToRFID(
+    barcode: String
 
+):String
+{
+    var rfid = barcode
+    var epc: String
+    val epcanduseer = rfid.split(",").toTypedArray()
+    epc = epcanduseer[0].toString()
+    //epc ="1060050001|1"
+    var toB = epc.toByteArray().toHexString().padEnd(32,'0')
+    return toB
 }
 
 @Composable
